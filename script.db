@@ -17,11 +17,18 @@ create table chequing_account
 chequing_id number(11) not null primary key,
 chequing_rekening_nummer number(11) not null
 );
+alter table chequing_account
+add check (chequing_rekening_nummer >= 10000000000)
+add unique (chequing_rekening_nummer);
+
 create table savings_account
 (
 savings_id number(11) not null primary key,
 savings_rekening_nummer number(11) not null
 );
+alter table savings_account
+add check (savings_rekening_nummer >= 10000000000)
+add unique (savings_rekening_nummer);
 
 /*table to link klanten en accounts*/
 create table klanten_chequing
@@ -57,4 +64,4 @@ amount number(20),
 constraint fk_sa foreign key (klanten_account_id) references klanten_savings(klanten_account_id)
 );
 
-/**/
+
