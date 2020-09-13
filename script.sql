@@ -68,6 +68,8 @@ last_interaction date,
 constraint fk_sa foreign key (klanten_account_id) references klanten_savings(klanten_account_id)
 );
 /
+/*inserting data into the tables*/
+/
 create table klanten_jn as select * from klanten where 1=0;
 /
 alter table klanten_jn
@@ -163,5 +165,20 @@ create or replace procedure calculation_interest
 is
 begin
     update savings_balans set interest = (0.01*amount) where last_interaction >= SYSDATE;
+    commit;
+    
+end;
+/
+begin
+    dbms_scheduler.create_job (
+        job_name => 'interest_calculation',
+        job_type => 'PL/SQL BLOCK',
+        job_action => 'begin calculation_interest; end;',
+        start_date => systimestamp,
+        repeat_interval => 'FREQ=MONTHLY; BYMONTHDAY=-1',
+        enable => true);
+ end;
+    
+    
     
 
