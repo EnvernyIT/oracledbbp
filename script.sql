@@ -178,7 +178,5 @@ begin
         repeat_interval => 'FREQ=MONTHLY; BYMONTHDAY=-1',
         enable => true);
  end;
-    
-    
-    
-
+ /
+ /*views*/
