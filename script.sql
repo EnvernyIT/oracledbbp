@@ -129,6 +129,8 @@ begin
       
 end;
 /
+/*delete statement*/
+/
 create or replace trigger klanten_after_update
 after update
     on klanten
@@ -154,6 +156,12 @@ begin
       'U');
       
 end;
-
-
+/
+/*update statement*/
+/
+create or replace procedure calculation_interest
+is
+begin
+    update savings_balans set interest = (0.01*amount) where last_interaction >= SYSDATE;
+    
 
