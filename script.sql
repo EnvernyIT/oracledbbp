@@ -54,6 +54,7 @@ create table chequing_balans
 balans_id number(11) not null primary key,
 klanten_account_id number(11),
 amount number(20),
+interest number(3),
 last_interaction date,
 constraint fk_ch foreign key (klanten_account_id) references klanten_savings(klanten_account_id)
 );
@@ -62,8 +63,97 @@ create table savings_balans
 balans_id number(11) not null primary key,
 klanten_account_id number(11),
 amount number(20),
+interest number(3),
 last_interaction date,
 constraint fk_sa foreign key (klanten_account_id) references klanten_savings(klanten_account_id)
 );
+/
+create table klanten_jn as select * from klanten where 1=0;
+/
+alter table klanten_jn
+add dml_actie varchar2(50);
+/
+/*insert trigger*/
+create or replace trigger klanten_after_insert
+after insert
+    on klanten
+    for each row
+begin
+
+    insert into klanten_jn
+    (klanten_id,
+     klanten_naam,
+     klanten_adress,
+     klanten_city,
+     klanten_birthdate,
+     klanten_registration_age,
+     dml_actie
+     )
+     values
+     (:new.klanten_id,
+      :new.klanten_naam,
+      :new.klanten_adress,
+      :new.klanten_city,
+      :new.klanten_birthdate,
+      :new.klanten_registration_age,
+      'I');
+      
+end;
+/
+/*insert statement*/
+/
+/*delete trigger*/
+create or replace trigger klanten_after_delete
+after delete
+    on klanten
+    for each row
+begin
+
+    insert into klanten_jn
+    (klanten_id,
+     klanten_naam,
+     klanten_adress,
+     klanten_city,
+     klanten_birthdate,
+     klanten_registration_age,
+     dml_actie
+     )
+     values
+     (:new.klanten_id,
+      :new.klanten_naam,
+      :new.klanten_adress,
+      :new.klanten_city,
+      :new.klanten_birthdate,
+      :new.klanten_registration_age,
+      'D');
+      
+end;
+/
+create or replace trigger klanten_after_update
+after update
+    on klanten
+    for each row
+begin
+
+    insert into klanten_jn
+    (klanten_id,
+     klanten_naam,
+     klanten_adress,
+     klanten_city,
+     klanten_birthdate,
+     klanten_registration_age,
+     dml_actie
+     )
+     values
+     (:new.klanten_id,
+      :new.klanten_naam,
+      :new.klanten_adress,
+      :new.klanten_city,
+      :new.klanten_birthdate,
+      :new.klanten_registration_age,
+      'U');
+      
+end;
+
 
 
