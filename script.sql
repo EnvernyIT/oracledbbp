@@ -69,6 +69,7 @@ constraint fk_sa foreign key (klanten_account_id) references klanten_savings(kla
 );
 /
 /*inserting data into the tables*/
+insert into klanten (klanten_id, klanten_naam,
 /
 create table klanten_jn as select * from klanten where 1=0;
 /
