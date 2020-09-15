@@ -8,7 +8,6 @@ klanten_naam varchar2(60),
 klanten_adress varchar2(60),
 klanten_city varchar2(60),
 klanten_birthdate date,
-klanten_registration_age number(11)
 );
 
 /*create tables for the accounts spaar/giro*/
@@ -69,8 +68,16 @@ constraint fk_sa foreign key (klanten_account_id) references klanten_savings(kla
 );
 /
 /*inserting data into the tables*/
-insert into klanten (klanten_id, klanten_naam, klanten
+insert into klanten (klanten_id, klanten_naam, klanten_adress, klanten_city, klanten_birthdate)
+VALUES (1, 'john', 'bacovenstraat 100', 'paramaribo', '02-JAN-1980');
 /
+INSERT ALL
+ INTO klanten (klanten_id, klanten_naam, klanten_adress, klanten_city, klanten_birthdate) VALUES (2, 'johanna', 'bananenstraat 120', 'paramaribo', '02-JAN-1980')
+ INTO klanten (klanten_id, klanten_naam, klanten_adress, klanten_city, klanten_birthdate) VALUES (3, 'jason', 'ananasstraat 99', 'paramaribo', '02-JAN-1980')
+ SELECT * FROM klanten; 
+/
+INSERT INTO chequing_account ()
+
 create table klanten_jn as select * from klanten where 1=0;
 /
 alter table klanten_jn
@@ -181,3 +188,5 @@ begin
  end;
  /
  /*views*/
+ CREATE or REPLACE VIEW klanten_account 
+    SELECT 
