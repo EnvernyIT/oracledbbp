@@ -76,7 +76,7 @@ INSERT ALL
  INTO klanten (klanten_id, klanten_naam, klanten_adress, klanten_city, klanten_birthdate) VALUES (3, 'jason', 'ananasstraat 99', 'paramaribo', '02-JAN-1980')
  SELECT * FROM klanten; 
 /
-INSERT INTO chequing_account ()
+
 
 create table klanten_jn as select * from klanten where 1=0;
 /
@@ -189,4 +189,9 @@ begin
  /
  /*views*/
  CREATE or REPLACE VIEW klanten_account 
-    SELECT 
+    SELECT k.klanten_id, k.klanten_naam, ca.chequing_id, ca.chequing_rekening_nummer
+    FROM klanten k
+    INNER JOIN klanten_chequing kc
+    ON k.klanten_id = kc.klanten_id
+    INNER JOIN klanten_chequing kc
+    ON ca.chequing_id = kc.chequing_id;
