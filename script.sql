@@ -60,6 +60,20 @@ interest number(3),
 last_interaction date,
 constraint fk_sa foreign key (klanten_account_id) references klanten_savings(klanten_account_id)
 );
+
+/*Views balans chequing - elke maand wordt er SRD 10 weggehaald*/
+create view "low rate chequing accounts" as
+select klanten_account_id, amount, interest
+from chequing_balans
+where amount <= 10;
+
+/*High Percentages Interests*/
+create view "high interest rate" as
+select klanten_account_id, amount, interest
+from chequing_balans
+where interest > 10;
+
+/**/
 /
 create table klanten_jn as select * from klanten where 1=0;
 /
@@ -79,7 +93,6 @@ begin
      klanten_adress,
      klanten_city,
      klanten_birthdate,
-     klanten_registration_age,
      dml_actie
      )
      values
