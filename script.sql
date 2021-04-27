@@ -1,164 +1,87 @@
-create table klanten
-(
-klanten_id number(11) not null primary key,
-klanten_naam varchar2(60),
-klanten_adress varchar2(60),
-klanten_city varchar2(60),
-klanten_birthdate date
+create table workout_level(
+workout_level_id number(11) not null primary key,
+ naam VARCHAR(60)
 );
-/
-create table chequing_account
-(
-chequing_id number(11) not null primary key,
-chequing_rekening_nummer number(11) not null
-);
-alter table chequing_account
-add check (chequing_rekening_nummer >= 10000000000)
-add unique (chequing_rekening_nummer);
-/
-create table savings_account
-(
-savings_id number(11) not null primary key,
-savings_rekening_nummer number(11) not null
-);
-alter table savings_account
-add check (savings_rekening_nummer >= 10000000000)
-add unique (savings_rekening_nummer);
-/
-create table klanten_chequing
-(
-klanten_account_id number(11) not null primary key,
-klanten_id number(11),
-chequing_id number(11),
-constraint fk_kc_link foreign key (klanten_id) references klanten(klanten_id),
-constraint fk_ck_link foreign key (chequing_id) references chequing_account(chequing_id)
-);
-create table klanten_savings
-(
-klanten_account_id number(11) not null primary key,
-klanten_id number(11),
-savings_id number(11),
-constraint fk_ks_link foreign key (klanten_id) references klanten(klanten_id),
-constraint fk_sk_link foreign key (savings_id) references savings_account(savings_id)
-);
-/
-create table chequing_balans
-(
-balans_id number(11) not null primary key,
-klanten_account_id number(11),
-amount number(20),
-interest number(3),
-last_interaction date,
-constraint fk_ch foreign key (klanten_account_id) references klanten_savings(klanten_account_id)
-);
-create table savings_balans
-(
-balans_id number(11) not null primary key,
-klanten_account_id number(11),
-amount number(20),
-interest number(3),
-last_interaction date,
-constraint fk_sa foreign key (klanten_account_id) references klanten_savings(klanten_account_id)
-);
-/
-create table klanten_jn as select * from klanten where 1=0;
-/
-alter table klanten_jn
-add dml_actie varchar2(50);
-/
-/*insert trigger*/
-create or replace trigger klanten_after_insert
-after insert
-    on klanten
-    for each row
-begin
 
-    insert into klanten_jn
-    (klanten_id,
-     klanten_naam,
-     klanten_adress,
-     klanten_city,
-     klanten_birthdate,
-     klanten_registration_age,
-     dml_actie
-     )
-     values
-     (:new.klanten_id,
-      :new.klanten_naam,
-      :new.klanten_adress,
-      :new.klanten_city,
-      :new.klanten_birthdate,
-      'I');
-      
-end;
-/
-/*insert statement*/
-/
-/*delete trigger*/
-create or replace trigger klanten_after_delete
-after delete
-    on klanten
-    for each row
-begin
+create table diet(
+ diet_id number(11) not null primary kwy,
+ naam varchar(50) not null,
+ beschrijving varchar(100)
+);
 
-    insert into klanten_jn
-    (klanten_id,
-     klanten_naam,
-     klanten_adress,
-     klanten_city,
-     klanten_birthdate,
-     dml_actie
-     )
-     values
-     (:new.klanten_id,
-      :new.klanten_naam,
-      :new.klanten_adress,
-      :new.klanten_city,
-      :new.klanten_birthdate,
-      'D');
-      
-end;
-/
-/*delete statement*/
-/
-create or replace trigger klanten_after_update
-after update
-    on klanten
-    for each row
-begin
+create table exercise
+(
+exercise_id number(11) not null primary key,
+naam varchar(60),
+lichaamdeel varchar(60),
+graad number(11)
+);
 
-    insert into klanten_jn
-    (klanten_id,
-     klanten_naam,
-     klanten_adress,
-     klanten_city,
-     klanten_birthdate,
-     dml_actie
-     )
-     values
-     (:new.klanten_id,
-      :new.klanten_naam,
-      :new.klanten_adress,
-      :new.klanten_city,
-      :new.klanten_birthdate,
-      'U');
-      
-end;
-/
-create or replace procedure calculation_interest
-is
-begin
-    update savings_balans set interest = (0.01*amount) where last_interaction >= SYSDATE;
-    commit;
-    
-end;
-/
-begin
-    DBMS_SCHEDULER.create_job (
-        job_name => 'interest_calculation',
-        job_type => 'PL/SQL BLOCK',
-        job_action => 'begin calculation_interest; end;',
-        start_date => systimestamp,
-        repeat_interval => 'FREQ=MONTHLY; BYMONTHDAY=-1',
-        enable => true);
- end;
+create table gebruiker
+(
+gebruiker_id number(11) not null primary key,
+naam varchar2(60),
+adress varchar2(60),
+geboortedatum date,
+bmi float(7),
+weight float(6),
+diet_id number(11),
+constraint fk_gdiet_link foreign key (diet_id) REFERENCES diet(diet_id)
+);
+
+create table workout
+(
+workout_id number(11) not null primary key,
+naam varchar(60),
+categorie varchar(60),
+exercise_id number(11) not null,
+workout_level_id number(11) not NULL,
+CONSTRAINT fk_wwl_link foreign key (workout_level_id) REFERENCES workout_level(workout_level_id),
+CONSTRAINT fk_we_link foreign key (exercise_id) REFERENCES exercise(exercise_id)
+);
+
+create table gebruiker_workout
+(
+gebruiker_workout_id number(11) not null primary key,
+gebruiker_id number(11) not null,
+workout_id number(11) not null,
+CONSTRAINT fk_gw_link foreign key (gebruiker_id) REFERENCES gebruiker(gebruiker_id),
+CONSTRAINT fk_wg_link foreign key (workout_id) REFERENCES workout(workout_id)
+);	NOtAnotherWorkoutApp	1618673370326	Script	1	2.336
+
+
+De volgende zijn views
+View 1: WORKOUT_WITH_LEVELS
+SELECT workout.workout_id, workout.workout_naam, workout_level.workout_level_id, workout_level.level_naam
+FROM workout
+RIGHT JOIN workout_level ON workout.workout_level_id = workout_level.workout_level_id
+ORDER BY workout.workout_naam
+
+View 2: WORKOUT_WITH_EXERCISES
+SELECT workout.workout_id, workout.workout_naam, exercise.exercise_naam
+FROM workout
+RIGHT JOIN exercise ON workout.exercise_id= exercise.exercise_id
+ORDER BY workout.workout_naam
+
+View 3:GEBRUIKERS_DEMOGRAPHIC_YOUTH
+SELECT gebruiker_naam, ROUND((SYSDATE - TO_DATE(geboortedatum))/365.25, 5) AS AGE 
+from gebruiker
+WHERE ROUND((SYSDATE - TO_DATE(geboortedatum))/365.25, 5) BETWEEN 16 AND 24
+
+View 4: GEBRUIKER_WITH_DIET
+SELECT gebruiker.gebruiker_id, gebruiker.gebruiker_naam, diet.diet_naam
+FROM gebruiker
+RIGHT JOIN diet ON gebruiker.diet_id = diet.diet_id
+ORDER BY diet.diet_naam
+
+View 5: GEBRUIKER_DEMPGRAPHIC_ADULT
+SELECT gebruiker_naam, ROUND((SYSDATE - TO_DATE(geboortedatum))/365.25, 5) AS AGE 
+from gebruiker
+WHERE ROUND((SYSDATE - TO_DATE(geboortedatum))/365.25, 5) BETWEEN 25 AND 64
+
+View 6: GEBRUIKER_DEMOGRAPHIC_SENIOR
+SELECT gebruiker_naam, ROUND((SYSDATE - TO_DATE(geboortedatum))/365.25, 5) AS AGE 
+from gebruiker
+WHERE ROUND((SYSDATE - TO_DATE(geboortedatum))/365.25, 5) >= 65
+
+
